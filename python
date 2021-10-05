@@ -1,39 +1,142 @@
-# Import required library
+# Importing the turtle library
+# The turtle library is already pre-installed in python 
 import turtle
-
-# Create screen
+ 
+# Making the "board game" or screen
 sc = turtle.Screen()
-sc.title("Pong game")
-sc.bgcolor("white")
-sc.setup(width=1000, height=600)
-
-
-# Left paddle
+sc.title("Pong game") # Displays the title at the top of screen
+sc.bgcolor("LightBlue") # Background color 
+sc.setup(width=1000, height=600) # Dementions of screen
+ 
+ 
+# MLeft paddle
 left_pad = turtle.Turtle()
-left_pad.speed(0)
-left_pad.shape("square")
-left_pad.color("black")
-left_pad.shapesize(stretch_wid=6, stretch_len=2)
-left_pad.penup()
-left_pad.goto(-400, 0)
-
-
+#left_pad.speed(10) # I am commenting this out because it looks cooler when you open the game
+left_pad.shape("square") # Shape of paddle
+left_pad.color("DarkOrange") # Color of paddle
+left_pad.shapesize(stretch_wid=4, stretch_len=2) # Dementions of paddle
+left_pad.penup() # Makes sure the paddle doesn't any lines on the screen
+left_pad.goto(-400, 0) # Location of paddle
+ 
+ 
 # Right paddle
 right_pad = turtle.Turtle()
-right_pad.speed(0)
-right_pad.shape("square")
-right_pad.color("black")
-right_pad.shapesize(stretch_wid=6, stretch_len=2)
-right_pad.penup()
-right_pad.goto(400, 0)
-
-
+#right_pad.speed(0)
+right_pad.shape("square") # Shape of paddle
+right_pad.color("DarkViolet") # Color of paddle
+right_pad.shapesize(stretch_wid=4, stretch_len=2) # Dementions of paddle
+right_pad.penup() # Makes sure the paddle doesn't any lines on the screen
+right_pad.goto(400, 0) # Location of paddle
+ 
+ 
 # Ball of circle shape
 hit_ball = turtle.Turtle()
-hit_ball.speed(40)
-hit_ball.shape("circle")
-hit_ball.color("blue")
-hit_ball.penup()
-hit_ball.goto(0, 0)
-hit_ball.dx = 5
+hit_ball.speed(0) # speed of the ball
+hit_ball.shape("circle") #shape of ball is set to circle
+hit_ball.color("white") # color of ball
+hit_ball.penup() # Makes sure the ball doesn't draw any lines on the screen
+hit_ball.goto(0, 0) # Places the ball in the center of the screen
+hit_ball.dx = 5 # dy / dx mean the slope that the ball goes by
 hit_ball.dy = -5
+
+# Score always begins at 0
+left_player = 0
+right_player = 0
+ 
+ 
+# Displays the score
+sketch = turtle.Turtle()
+sketch.speed(0) # how quickly the sore board pops up on the screen
+sketch.color("blue") # color os score
+sketch.penup()
+sketch.hideturtle() # makes the turtle invisible 
+sketch.goto(0, 260) # location
+sketch.write("Left_player : 0    Right_player: 0",
+             align="center", font=("Courier", 24, "normal")) # makes socre centered on screen
+                                                             # sets font stype and size
+ 
+ 
+# Functions to move paddle up and down
+
+# left paddle
+def paddleaup(): # moving up
+    y = left_pad.ycor() # returns the turtle's y coordinates
+    y += 20             # how much the paddle moves with one click
+    left_pad.sety(y)
+ 
+ 
+def paddleadown(): # moving down
+    y = left_pad.ycor() # returns the turtle's y coordinates
+    y -= 20             # how much the paddle moves with one click
+    left_pad.sety(y)    # set turtle's second cooordinate to y
+ 
+ 
+# right paddle
+def paddlebup(): # moving up
+    y = right_pad.ycor() # returns the turtle's y coordinates
+    y += 20              # how much the paddle moves with one click
+    right_pad.sety(y)    # set turtle's second cooordinate to y
+ 
+ 
+def paddlebdown(): # moving down
+    y = right_pad.ycor() # returns the turtle's y coordinates
+    y -= 20              # how much the paddle moves with one click
+    right_pad.sety(y)    # set turtle's second cooordinate to y
+ 
+ 
+# Keyboard bindings
+sc.listen() # makes the socket ready to accept connections
+
+# which buttons to press to move paddles up and down
+sc.onkeypress(paddleaup, "w")       # w and s are usually used for the "left" player
+sc.onkeypress(paddleadown, "s")     # instead of the up and down arrow
+sc.onkeypress(paddlebup, "Up")      # buttons for "right" player to move up and down
+sc.onkeypress(paddlebdown, "Down")
+ 
+ 
+while True: # will always be true unless specified otherwise aka the code will always be executed
+    sc.update() # updates directory
+ 
+    hit_ball.setx(hit_ball.xcor()+hit_ball.dx) 
+    hit_ball.sety(hit_ball.ycor()+hit_ball.dy)
+ 
+    # Checking borders
+    if hit_ball.ycor() > 280:   # if the ball hits the ceiling (y coordinate greater than 280)
+        hit_ball.sety(280)      # it bounces off the wall
+        hit_ball.dy *= -1       # switches the slope 
+ 
+    if hit_ball.ycor() < -280:  # if the ball hits the floor (y coordinate less than 280)
+        hit_ball.sety(-280)     # it bounces off the wall
+        hit_ball.dy *= -1       # switches the slope
+ 
+    if hit_ball.xcor() > 500:   # if the ball hits the right wall
+        hit_ball.goto(0, 0)     # it resets to the center
+        hit_ball.dy *= -1
+        left_player += 1        # left player gains one point
+        sketch.clear()
+        sketch.write("Left_player : {}    Right_player: {}".format( # adds point to the score board
+                      left_player, right_player), align="center",
+                      font=("Courier", 24, "normal"))
+ 
+    if hit_ball.xcor() < -500:    # if the ball hits the left wall
+        hit_ball.goto(0, 0)       # it resets to the center
+        hit_ball.dy *= -1
+        right_player += 1         # right player gains one point
+        sketch.clear()
+        sketch.write("Left_player : {}    Right_player: {}".format( # adds points to the score board
+                                 left_player, right_player), align="center",
+                                 font=("Courier", 24, "normal"))
+ 
+    # Paddle ball collision
+
+    # when the ball hits the right paddle it bounces off
+    if (hit_ball.xcor() > 360 and hit_ball.xcor() < 370) and (hit_ball.ycor() < right_pad.ycor()+40 and
+        hit_ball.ycor() > right_pad.ycor()-40):
+            hit_ball.setx(360)
+            hit_ball.dx*=-1 
+        
+    # if the ball hits the left paddle it bounces off
+    if (hit_ball.xcor()<-360 and hit_ball.xcor()>-370) and (hit_ball.ycor()<left_pad.ycor()+40 and
+        hit_ball.ycor()>left_pad.ycor()-40):
+            hit_ball.setx(-360)
+            hit_ball.dx*=-1
